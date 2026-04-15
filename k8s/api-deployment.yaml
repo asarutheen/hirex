@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hirex-api
+  namespace: hirex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hirex-api
+  template:
+    metadata:
+      labels:
+        app: hirex-api
+    spec:
+      containers:
+        - name: api
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hirex-api-svc
+  namespace: hirex
+spec:
+  selector:
+    app: hirex-api
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer

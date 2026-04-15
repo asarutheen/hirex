@@ -1,159 +1,88 @@
-# Turborepo starter
+# HireX — AI-Powered Hiring Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-stack hiring platform built with Node.js, Next.js, PostgreSQL, and AI integration (Groq + Gemini). Built in public as a learning project to transition into DevOps + AI integration engineering.
 
-## Using this example
+## Tech Stack
 
-Run the following command:
+| Layer        | Technology                            |
+| ------------ | ------------------------------------- |
+| Backend      | Node.js + TypeScript + Express        |
+| Frontend     | Next.js                               |
+| Database     | PostgreSQL + pgvector                 |
+| Cache        | Redis (Upstash)                       |
+| AI           | Groq (text gen) + Gemini (embeddings) |
+| Monorepo     | Turborepo + pnpm                      |
+| Container    | Docker                                |
+| Kubernetes   | k3d (local) → EKS (production)        |
+| CI/CD        | GitHub Actions → Docker Hub → ArgoCD  |
+| File Storage | Cloudflare R2                         |
 
-```sh
-npx create-turbo@latest
+## Project Structure
+
+hirex/
+├── apps/
+│ ├── api/ # Node.js monolith backend
+│ └── web/ # Next.js frontend
+└── packages/
+├── db/ # Prisma database client
+├── types/ # Shared TypeScript types
+├── ui/ # Shared React components
+├── eslint-config/
+└── typescript-config/
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js v20+
+- pnpm v10+
+- Docker Desktop
+- k3d
+
+### Install dependencies
+
+```bash
+pnpm install
 ```
 
-## What's inside?
+### Run API locally
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm --filter @hirex/api dev
 ```
 
-Without global `turbo`, use your package manager:
+API runs at `http://localhost:3001`
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+### Health check
+
+```bash
+curl http://localhost:3001/health
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Local Kubernetes
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```bash
+# Create cluster
+k3d cluster create hirex-local --port "8080:80@loadbalancer" --agents 2
 
-```sh
-turbo build --filter=docs
+# Create namespace
+kubectl create namespace hirex
+
+# Deploy
+kubectl apply -f k8s/
+
+# Test pod directly
+kubectl port-forward svc/hirex-api-svc 9090:80 -n hirex
+curl http://localhost:9090
 ```
 
-Without global `turbo`:
+## Development Progress
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+| Day     | Focus                                  | Status  |
+| ------- | -------------------------------------- | ------- |
+| Day 1   | Monorepo + K8s + CI foundation         | ✅ Done |
+| Day 2   | PostgreSQL + Prisma + Auth API         | 🔜 Next |
+| Day 3   | Job board API + Docker image + Ingress | ⏳      |
+| Day 4-5 | AI integration (Groq + Gemini)         | ⏳      |
+| Day 8   | Monolith → Microservices split         | ⏳      |
+| Day 10  | ArgoCD GitOps + Production deploy      | ⏳      |
