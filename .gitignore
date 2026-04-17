@@ -39,3 +39,4 @@ yarn-error.log*
 
 
 packages/db/.env
+k8s/postgres-secret.yaml
