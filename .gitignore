@@ -40,3 +40,5 @@ yarn-error.log*
 
 packages/db/.env
 k8s/postgres-secret.yaml
+k8s/api-secret.yaml
+apps/api/.env
