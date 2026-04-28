@@ -22,6 +22,8 @@ RUN cd apps/api && sed -i 's|"@hirex/db": "workspace:\*"|"@hirex/db": "file:../.
 WORKDIR /app/packages/db
 RUN npm install
 RUN npx tsc
+# Copy generated client into dist so compiled code can find it
+RUN cp -r generated dist/generated
 
 # Install and build api
 WORKDIR /app/apps/api
