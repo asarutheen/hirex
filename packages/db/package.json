@@ -1,8 +1,10 @@
 {
   "name": "@hirex/db",
   "version": "0.0.1",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push"
@@ -10,5 +12,8 @@
   "dependencies": {
     "@prisma/client": "6",
     "prisma": "6"
+  },
+  "devDependencies": {
+    "typescript": "^5"
   }
 }
