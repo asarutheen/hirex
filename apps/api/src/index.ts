@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import authRoutes from "./modules/auth/auth.routes";
+import jobRoutes from "./modules/jobs/jobs.routes";  // ADD THIS
 
 dotenv.config();
 console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
@@ -20,6 +21,9 @@ app.get("/health", (_req, res) => {
 
 app.use("/api/auth", authRoutes);
 console.log("Auth routes registered");
+
+app.use("/api/jobs", jobRoutes);         // ADD THIS
+console.log("Job routes registered");
 
 app.listen(PORT, () => {
   console.log(`HireX API running on port ${PORT}`);
