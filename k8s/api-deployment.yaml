@@ -30,6 +30,11 @@ spec:
                 secretKeyRef:
                   name: api-secret
                   key: JWT_SECRET
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: GROQ_API_KEY
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

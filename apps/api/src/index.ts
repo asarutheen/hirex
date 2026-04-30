@@ -1,9 +1,10 @@
-import express from "express";
-import dotenv from "dotenv";
-import authRoutes from "./modules/auth/auth.routes";
-import jobRoutes from "./modules/jobs/jobs.routes";  // ADD THIS
+import './lib/env';
 
-dotenv.config();
+import express from "express";
+import authRoutes from "./modules/auth/auth.routes";
+import jobRoutes from "./modules/jobs/jobs.routes";
+import aiRoutes from './modules/ai/ai.routes';
+
 console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
 
 const app = express();
@@ -22,8 +23,11 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 console.log("Auth routes registered");
 
-app.use("/api/jobs", jobRoutes);         // ADD THIS
+app.use("/api/jobs", jobRoutes);        
 console.log("Job routes registered");
+
+app.use('/api/ai', aiRoutes);
+console.log("AI routes registered");
 
 app.listen(PORT, () => {
   console.log(`HireX API running on port ${PORT}`);
