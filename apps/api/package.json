@@ -7,6 +7,7 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@google/genai": "^1.52.0",
     "@hirex/db": "workspace:*",
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.3.1",

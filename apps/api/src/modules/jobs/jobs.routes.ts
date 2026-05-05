@@ -8,7 +8,9 @@ import {
   deleteJob,
   applyToJob,
   getMyApplications,
+  semanticJobSearch,
 } from './jobs.controller';
+import {  } from './jobs.controller';
 
 const router: Router = Router();
 
@@ -22,5 +24,6 @@ router.put('/:id', authenticate, updateJob);
 router.delete('/:id', authenticate, deleteJob);
 router.post('/:id/apply', authenticate, applyToJob);
 router.get('/my/applications', authenticate, getMyApplications);
+router.post('/search', authenticate, semanticJobSearch);
 
 export default router;

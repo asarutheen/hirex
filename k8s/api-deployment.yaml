@@ -35,6 +35,11 @@ spec:
                 secretKeyRef:
                   name: api-secret
                   key: GROQ_API_KEY
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: GEMINI_API_KEY
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

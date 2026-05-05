@@ -21,16 +21,17 @@ model User {
 }
 
 model Job {
-  id          String   @id @default(uuid())
+  id          String                       @id @default(cuid())
   title       String
   description String
-  location    String
-  salary      Int?
-  postedBy    User     @relation(fields: [postedById], references: [id])
+  location    String?
+  salary      String?
   postedById  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  embedding   Unsupported("vector(3072)")?
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
 
+  postedBy     User          @relation(fields: [postedById], references: [id])
   applications Application[]
 }
 

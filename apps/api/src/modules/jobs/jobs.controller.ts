@@ -1,19 +1,12 @@
 import { Request, Response } from 'express';
 import { prisma } from '@hirex/db';
 import { AuthRequest } from '../../middleware/auth';
+import { generateEmbedding } from '../../lib/gemini';
 
 // POST /jobs — EMPLOYER only
-export const createJob = async (req: AuthRequest, res: Response) => {
+export const createJob = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role !== 'EMPLOYER') {
-      return res.status(403).json({ error: 'Only employers can post jobs' });
-    }
-
     const { title, description, location, salary } = req.body;
-
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
-    }
 
     const job = await prisma.job.create({
       data: {
@@ -21,12 +14,28 @@ export const createJob = async (req: AuthRequest, res: Response) => {
         description,
         location,
         salary,
-        postedById: req.user.userId,
+        postedById: req.user!.userId,
       },
     });
 
+    // Generate embedding from title + description
+    try {
+      const embedding = await generateEmbedding(`${title} ${description}`);
+      const vectorString = `[${embedding.join(',')}]`;
+
+     await prisma.$executeRawUnsafe(
+        `UPDATE "Job" SET embedding = $1::vector WHERE id = $2`,
+        vectorString,
+        job.id
+      );
+    } catch (embeddingError) {
+      // Don't fail job creation if embedding fails
+      console.error('Embedding generation failed:', embeddingError);
+    }
+
     res.status(201).json(job);
-  } catch (err) {
+  } catch (error: any) {
+    console.error('Create job error:', error?.message);
     res.status(500).json({ error: 'Failed to create job' });
   }
 };
@@ -155,5 +164,36 @@ export const getMyApplications = async (req: AuthRequest, res: Response) => {
     res.json(applications);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+};
+
+export const semanticJobSearch = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { query } = req.body;
+
+    if (!query) {
+      res.status(400).json({ error: 'query is required' });
+      return;
+    }
+
+    // Generate embedding for the search query
+    const embedding = await generateEmbedding(query);
+    const vectorString = `[${embedding.join(',')}]`;
+
+    // Find similar jobs using cosine distance
+    const jobs = await prisma.$queryRawUnsafe<any[]>(
+      `SELECT id, title, description, location, salary, "postedById", "createdAt",
+        1 - (embedding <=> $1::vector) as similarity
+       FROM "Job"
+       WHERE embedding IS NOT NULL
+       ORDER BY embedding <=> $1::vector
+       LIMIT 10`,
+      vectorString
+    );
+
+    res.json({ jobs, query });
+  } catch (error: any) {
+    console.error('Semantic search error:', error?.message);
+    res.status(500).json({ error: 'Semantic search failed' });
   }
 };
