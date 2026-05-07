@@ -27,7 +27,7 @@ export const parseResumePDF = async (pdfBuffer: Buffer): Promise<string> => {
   const base64PDF = pdfBuffer.toString('base64');
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-1.5-flash',
     contents: [
       {
         parts: [

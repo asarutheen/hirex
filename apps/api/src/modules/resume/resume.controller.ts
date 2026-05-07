@@ -17,6 +17,10 @@ export const uploadResume = async (req: AuthRequest & { file?: Express.Multer.Fi
     }
 
     const userId = req.user!.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const fileKey = `resumes/${userId}/${uuidv4()}.pdf`;
 
     // Step 1 — Upload to MinIO
