@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '../../middleware/auth';
 import multer from 'multer';
 import { minioClient, MINIO_BUCKET } from '../../lib/minio';
 import { prisma } from '@hirex/db';
 import { v4 as uuidv4 } from 'uuid';
 
-export const uploadResume = async (req: Request & { file?: Express.Multer.File }, res: Response) => {
+export const uploadResume = async (req: AuthRequest & { file?: Express.Multer.File }, res: Response) => {
   try {
     const file = req.file;
     if (!file) {
@@ -15,7 +16,7 @@ export const uploadResume = async (req: Request & { file?: Express.Multer.File }
       return res.status(400).json({ error: 'Only PDF files are allowed' });
     }
 
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const fileKey = `resumes/${userId}/${uuidv4()}.pdf`;
 
     // Upload to MinIO
