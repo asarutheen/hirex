@@ -15,7 +15,7 @@ export const uploadResume = async (req: Request & { file?: Express.Multer.File }
       return res.status(400).json({ error: 'Only PDF files are allowed' });
     }
 
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     const fileKey = `resumes/${userId}/${uuidv4()}.pdf`;
 
     // Upload to MinIO
