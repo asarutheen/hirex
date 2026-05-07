@@ -150,6 +150,18 @@ exports.Prisma.ApplicationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ResumeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fileName: 'fileName',
+  fileKey: 'fileKey',
+  fileUrl: 'fileUrl',
+  parsedText: 'parsedText',
+  embedding: 'embedding',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -180,7 +192,8 @@ exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
 exports.Prisma.ModelName = {
   User: 'User',
   Job: 'Job',
-  Application: 'Application'
+  Application: 'Application',
+  Resume: 'Resume'
 };
 
 /**

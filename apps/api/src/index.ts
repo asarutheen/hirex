@@ -4,6 +4,7 @@ import express from "express";
 import authRoutes from "./modules/auth/auth.routes";
 import jobRoutes from "./modules/jobs/jobs.routes";
 import aiRoutes from './modules/ai/ai.routes';
+import resumeRoutes from './modules/resume/resume.routes';
 
 console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
 
@@ -28,6 +29,9 @@ console.log("Job routes registered");
 
 app.use('/api/ai', aiRoutes);
 console.log("AI routes registered");
+
+app.use('/api/resume', resumeRoutes);
+console.log("Resume routes registered");
 
 app.listen(PORT, () => {
   console.log(`HireX API running on port ${PORT}`);
