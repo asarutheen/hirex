@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { minioClient, MINIO_BUCKET } from '../../lib/minio';
-import { parseResumePDF } from '../../lib/gemini';
+import { generateEmbedding, parseResumePDF } from '../../lib/gemini'; 
 import { prisma } from '@hirex/db';
 import { AuthRequest } from '../../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,14 +32,14 @@ export const uploadResume = async (req: AuthRequest & { file?: Express.Multer.Fi
       { 'Content-Type': 'application/pdf' }
     );
 
-    // Step 2 — Parse PDF with Gemini
+  // Step 2 — Parse PDF with Gemini
     let parsedText = '';
     try {
       parsedText = await parseResumePDF(file.buffer);
+      console.log('Parsed text length:', parsedText.length);
+      console.log('Parsed text preview:', parsedText.substring(0, 100));
     } catch (parseError) {
       console.error('PDF parsing failed:', parseError);
-      // Don't fail the whole request if parsing fails
-      // File is already uploaded — we can retry parsing later
     }
 
     // Step 3 — Save to DB
@@ -51,8 +51,38 @@ export const uploadResume = async (req: AuthRequest & { file?: Express.Multer.Fi
         fileUrl: `http://minio-svc:9000/${MINIO_BUCKET}/${fileKey}`,
         parsedText: parsedText || null,
       },
+      select: {
+        id: true,
+        userId: true,
+        fileName: true,
+        fileKey: true,
+        fileUrl: true,
+        parsedText: true,
+        createdAt: true,
+        updatedAt: true,
+        // embedding excluded — vector type can't be deserialized by Prisma
+      }
     });
 
+    console.log('Resume saved to DB:', resume.id);
+
+    // Step 4 — Generate embedding from parsed text
+    if (parsedText) {
+      try {
+        const embedding = await generateEmbedding(parsedText);
+        await prisma.$executeRawUnsafe(
+          `UPDATE "Resume" SET embedding = $1::vector WHERE id = $2`,
+          JSON.stringify(embedding),
+          resume.id
+        );
+        console.log('Resume embedding generated and stored');
+      } catch (embeddingError) {
+        console.error('Embedding generation failed:', embeddingError);
+        // Don't fail — resume is already saved, embedding can be retried
+      }
+    }
+
+    console.log('Sending response...');
     res.status(201).json({
       message: 'Resume uploaded successfully',
       resume: {
